@@ -1,5 +1,5 @@
 pub mod app;
-mod info_collection;
+pub mod info_collection;
 use app::app as frame_app;
 fn main(){
     let mut _app = frame_app::App::new();

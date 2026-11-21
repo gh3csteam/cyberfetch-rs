@@ -1,5 +1,7 @@
+
+
 use ratatui::{
-    Frame, layout::{Alignment, Constraint, Layout}, style::{Color, Style, Stylize}, symbols, text::{Line, Span}, widgets::{Block, BorderType, Borders, Padding, Paragraph}
+    Frame, layout::{Alignment, Constraint, Flex::Center, Layout}, macros::horizontal, style::{Color, Style, Stylize}, symbols, text::{Line, Span}, widgets::{Block, BorderType, Borders, Padding, Paragraph, Wrap}
 };
 
 const MUTED: Color = Color::Rgb(60, 70, 85);
@@ -16,6 +18,7 @@ fn panel(title: &str) -> Block<'static>{
     .title(Line::from(format!(" {title} ")).fg(ACCENT).bold())
     .bold()
 }       
+
 
 
 pub fn draw(frame: &mut Frame, _app: &mut App){
@@ -44,13 +47,54 @@ pub fn draw(frame: &mut Frame, _app: &mut App){
         ]
     ).areas(mid);
 
+    let [username, systeminfo] = Layout::vertical([
+        Constraint::Length(3),
+        Constraint::Fill(1)
+    ]).areas(logo);
+
+    let [ascii_art, info] = Layout::horizontal([
+        Constraint::Percentage(40),
+        Constraint::Percentage(60)
+
+    ]).areas(systeminfo);
+
     let title = Paragraph::new("λ >>_ cyberfetch system monitor _<< λ")
     .block(panel("cyberfetch"))
     .alignment(Alignment::Center)
     .style(ACCENT);
+    
+    let usname = &_app.username;
+
+    let user_info = Paragraph::new(format!(">_ {}@{}", usname.as_str(), _app.host_name)).block(
+        panel("user")
+    )
+    .alignment(Alignment::Center)
+    .style(ACCENT);
+
+    let info_text = format!(
+        "\nOS:  {}\nKernel:  {}\nHost:  {}\nVer:  {}\nCores:  {}\nCpu Model:  {}\nCpu Architecture:  {}",
+        _app.system_name,
+        _app.kernel_version,
+        _app.host_name,
+        _app.os_version,
+        _app.core_count,
+        _app.cpu_model,
+        _app.cpu_architecture,
+    );
+
+    let system_info = Paragraph::new(info_text)
+    .block(
+        panel("info").padding(Padding::horizontal(1))
+    )
+    .style(ACCENT);
 
     (*frame).render_widget(title, header);
+    (*frame).render_widget(system_info, info);
     (*frame).render_widget(panel("system"), logo);
+    (*frame).render_widget(panel("user"), username);
+    (*frame).render_widget(user_info, username);
+    (*frame).render_widget(panel("info"), info);
+    (*frame).render_widget(panel("ascii_art"), ascii_art);
     (*frame).render_widget(panel("memory"), mem);
     (*frame).render_widget(panel("art"), art);
     (*frame).render_widget(panel("procceses"), procceses);

@@ -1,3 +1,3 @@
 pub(crate) mod app;
-mod render;
-mod event;
+pub mod render;
+pub mod event;
