@@ -3,6 +3,9 @@ use crossterm::event::{self, Event::Key};
 use ratatui::{
     crossterm::event::{KeyEvent, KeyCode, KeyEventKind, KeyEventState, Event}
 };
+use crate::info_collection::{
+    sysinfo::{update_data}
+};
 
 
 use super::app::{
@@ -20,7 +23,7 @@ pub fn handle_key_events(_app: &mut App, key: KeyEvent){
 }
 
 pub fn on_tick(_app: &mut App){
-    
+    update_data(_app);
 }
 
 pub fn handle_events(_app: &mut App, timeout: Duration, last_tick: &mut Instant, tickrate: Duration)->std::io::Result<()>{

@@ -9,6 +9,7 @@ use sysinfo::{
     System,
 };
 
-pub fn update_data(app: &mut App){
-    let sys = &app.sys;
+pub fn update_data(app: &mut App){  
+   app.sys.refresh_all();
+   app.ram_used = app.sys.used_memory();
 }

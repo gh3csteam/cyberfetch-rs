@@ -72,7 +72,7 @@ pub fn draw(frame: &mut Frame, _app: &mut App){
     .style(ACCENT);
 
     let info_text = format!(
-        "\nOS:  {}\nKernel:  {}\nHost:  {}\nVer:  {}\nCores:  {}\nCpu Model:  {}\nCpu Architecture:  {}",
+        "\nOS:  {}\nKernel:  {}\nHost:  {}\nVer:  {}\nCores:  {}\nCpu Model:  {}\nCpu Architecture:  {}\nShell:  {}",
         _app.system_name,
         _app.kernel_version,
         _app.host_name,
@@ -80,6 +80,7 @@ pub fn draw(frame: &mut Frame, _app: &mut App){
         _app.core_count,
         _app.cpu_model,
         _app.cpu_architecture,
+        _app.shell
     );
 
     let system_info = Paragraph::new(info_text)
@@ -88,14 +89,21 @@ pub fn draw(frame: &mut Frame, _app: &mut App){
     )
     .style(ACCENT);
 
-    (*frame).render_widget(title, header);
+    let ram_gb = _app.ram_used as f64 / (1024.0 * 1024.0 * 1024.0);
+    let ram_text = format!("{:.1} GB", ram_gb);
+
+    let ram_info = Paragraph::new(ram_text).block(
+        panel("memory")
+    )
+    .style(ACCENT)
+    .alignment(Alignment::Center);
+
+    (*frame).render_widget(title, header);  
     (*frame).render_widget(system_info, info);
     (*frame).render_widget(panel("system"), logo);
-    (*frame).render_widget(panel("user"), username);
     (*frame).render_widget(user_info, username);
-    (*frame).render_widget(panel("info"), info);
     (*frame).render_widget(panel("ascii_art"), ascii_art);
-    (*frame).render_widget(panel("memory"), mem);
+    (*frame).render_widget(ram_info, mem);
     (*frame).render_widget(panel("art"), art);
     (*frame).render_widget(panel("procceses"), procceses);
     (*frame).render_widget(panel("net info"), ports);

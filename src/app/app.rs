@@ -19,7 +19,8 @@ pub struct App {
     pub cpu_model: String,
     pub cpu_architecture: String,
     pub total_ram: u64,
-    pub username: String
+    pub username: String,
+    pub shell: String
 }
 
 impl App {
@@ -35,6 +36,7 @@ impl App {
         let cpu_architecture = System::cpu_arch();
         let total_ram = System::total_memory(&sys).to_be();
         let username = std::env::var("USER").expect("couldn't find username");
+        let shell = std::env::var("SHELL").expect("couldn't find shell");
         Self {
             running: true,
             sys,
@@ -48,7 +50,8 @@ impl App {
             cpu_model,
             cpu_architecture,
             total_ram,
-            username
+            username,
+            shell
         }
     }
 

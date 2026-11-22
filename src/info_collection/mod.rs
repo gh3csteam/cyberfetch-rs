@@ -1,1 +1,1 @@
-mod sysinfo;
+pub mod sysinfo;
