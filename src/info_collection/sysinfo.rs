@@ -12,4 +12,5 @@ use sysinfo::{
 pub fn update_data(app: &mut App){  
    app.sys.refresh_all();
    app.ram_used = app.sys.used_memory();
+   app.cpu_usage = app.sys.cpus().iter().map(|f| f.usage()).collect();
 }

@@ -38,7 +38,7 @@ pub fn draw(frame: &mut Frame, _app: &mut App){
         ]
     ).areas(top);
 
-    let [art, procceses, ports] = Layout::horizontal(
+    let [data, procceses, ports] = Layout::horizontal(
         [
             Constraint::Percentage(40),
             Constraint::Percentage(30),
@@ -46,6 +46,13 @@ pub fn draw(frame: &mut Frame, _app: &mut App){
 
         ]
     ).areas(mid);
+
+    let [cpu_graph, diskload, tempo] = Layout::horizontal([
+        Constraint::Fill(1),
+        Constraint::Fill(1),
+        Constraint::Fill(1),
+    ]
+).areas(data);
 
     let [username, systeminfo] = Layout::vertical([
         Constraint::Length(3),
@@ -89,11 +96,19 @@ pub fn draw(frame: &mut Frame, _app: &mut App){
     )
     .style(ACCENT);
 
+    // let cpu_us = _app.cpu_usage.iter().map(format!("{}"));
+    // let cpu_usage = Paragraph::new(cpu_us)
+    // .block(
+    //     panel("cpu graph")
+    // ).style(ACCENT);
+
     let ram_gb = _app.ram_used as f64 / (1024.0 * 1024.0 * 1024.0);
-    let ram_text = format!("{:.1} GB", ram_gb);
+    let ram_max = _app.total_ram as f64 / (1024.0 * 1024.0 * 1024.0);
+    let ram_text = format!("memory usage - {:.1}/{:.1} GB", ram_gb, ram_max);
 
     let ram_info = Paragraph::new(ram_text).block(
         panel("memory")
+        .padding(Padding { left: (5), right: (5), top: (15), bottom: (1) })
     )
     .style(ACCENT)
     .alignment(Alignment::Center);
@@ -101,11 +116,13 @@ pub fn draw(frame: &mut Frame, _app: &mut App){
     (*frame).render_widget(title, header);  
     (*frame).render_widget(system_info, info);
     (*frame).render_widget(panel("system"), logo);
+    // (*frame).render_widget(cpu_usage, cpu_graph);
+    (*frame).render_widget(panel("disks"), diskload);
+    (*frame).render_widget(panel("temperature"), tempo);
     (*frame).render_widget(user_info, username);
     (*frame).render_widget(panel("ascii_art"), ascii_art);
     (*frame).render_widget(ram_info, mem);
-    (*frame).render_widget(panel("art"), art);
-    (*frame).render_widget(panel("procceses"), procceses);
+    (*frame).render_widget(panel("processes"), procceses);
     (*frame).render_widget(panel("net info"), ports);
     (*frame).render_widget(panel("keybinds")
     .title_bottom(Line::from("q - Quit").right_aligned().fg(ACCENT)),keybinds);

@@ -1,15 +1,16 @@
-use std::os;
+use std::{array, os};
 use std::time::{Duration, Instant};
 use super::render::draw;
 use super::event::handle_events;
-use sysinfo::System;
+use sysinfo::Signal::Sys;
+use sysinfo::{Cpu, System};
 
 const TICK_RATE: Duration = Duration::from_millis(500);
 
 pub struct App {
     pub running: bool,
     pub sys: System,
-    pub cpu_usage: f32,
+    pub cpu_usage: Vec<f32>,
     pub ram_used: u64,
     pub system_name: String,
     pub kernel_version: String,
@@ -20,7 +21,7 @@ pub struct App {
     pub cpu_architecture: String,
     pub total_ram: u64,
     pub username: String,
-    pub shell: String
+    pub shell: String,
 }
 
 impl App {
@@ -34,13 +35,13 @@ impl App {
         let core_count = System::physical_core_count().expect("couldn't find core count");
         let cpu_model = System::cpus(&sys)[0].brand().to_string();
         let cpu_architecture = System::cpu_arch();
-        let total_ram = System::total_memory(&sys).to_be();
+        let total_ram = System::total_memory(&sys);
         let username = std::env::var("USER").expect("couldn't find username");
         let shell = std::env::var("SHELL").expect("couldn't find shell");
         Self {
             running: true,
             sys,
-            cpu_usage: 0.0,
+            cpu_usage: vec![0.0],
             ram_used: 0,
             system_name,
             kernel_version,
@@ -51,7 +52,7 @@ impl App {
             cpu_architecture,
             total_ram,
             username,
-            shell
+            shell,
         }
     }
 
