@@ -1,5 +1,7 @@
 
 
+use std::{fmt::format, vec};
+
 use ratatui::{
     Frame, layout::{Alignment, Constraint, Flex::Center, Layout}, macros::horizontal, style::{Color, Style, Stylize}, symbols, text::{Line, Span}, widgets::{Block, BorderType, Borders, Padding, Paragraph, Wrap}
 };
@@ -96,11 +98,15 @@ pub fn draw(frame: &mut Frame, _app: &mut App){
     )
     .style(ACCENT);
 
-    // let cpu_us = _app.cpu_usage.iter().map(format!("{}"));
-    // let cpu_usage = Paragraph::new(cpu_us)
-    // .block(
-    //     panel("cpu graph")
-    // ).style(ACCENT);
+    let mut cpu_us: String = _app.cpu_usage
+    .iter()
+    .enumerate()
+    .map(|(i, n)| format!("\ncore{} - {}",i+1, n)).collect();
+
+    let cpu_usage = Paragraph::new(cpu_us)
+    .block(
+        panel("cpu graph")
+    ).style(ACCENT);
 
     let ram_gb = _app.ram_used as f64 / (1024.0 * 1024.0 * 1024.0);
     let ram_max = _app.total_ram as f64 / (1024.0 * 1024.0 * 1024.0);
@@ -116,7 +122,7 @@ pub fn draw(frame: &mut Frame, _app: &mut App){
     (*frame).render_widget(title, header);  
     (*frame).render_widget(system_info, info);
     (*frame).render_widget(panel("system"), logo);
-    // (*frame).render_widget(cpu_usage, cpu_graph);
+    (*frame).render_widget(cpu_usage, cpu_graph);
     (*frame).render_widget(panel("disks"), diskload);
     (*frame).render_widget(panel("temperature"), tempo);
     (*frame).render_widget(user_info, username);
