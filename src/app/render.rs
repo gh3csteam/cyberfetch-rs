@@ -79,14 +79,16 @@ pub fn draw(frame: &mut Frame, _app: &mut App){
     )
     .alignment(Alignment::Center)
     .style(ACCENT);
+;
 
     let info_text = format!(
-        "\nOS:  {}\nKernel:  {}\nHost:  {}\nVer:  {}\nCores:  {}\nCpu Model:  {}\nCpu Architecture:  {}\nShell:  {}",
+        "\nOS:  {}\nKernel:  {}\nHost:  {}\nVer:  {}\nCPU Threads:  {}({})\nCpu Model:  {}\nCpu Architecture:  {}\nShell:  {}",
         _app.system_name,
         _app.kernel_version,
         _app.host_name,
         _app.os_version,
         _app.core_count,
+        _app.cpu_usage.len().to_string(),
         _app.cpu_model,
         _app.cpu_architecture,
         _app.shell
@@ -98,7 +100,7 @@ pub fn draw(frame: &mut Frame, _app: &mut App){
     )
     .style(ACCENT);
 
-    let mut cpu_us: String = _app.cpu_usage
+    let cpu_us: String = _app.cpu_usage
     .iter()
     .enumerate()
     .map(|(i, n)| format!("\ncore{} - {}",i+1, n)).collect();
