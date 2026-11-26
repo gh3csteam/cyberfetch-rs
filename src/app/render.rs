@@ -1,9 +1,6 @@
 
-
-use std::{fmt::format, vec};
-
 use ratatui::{
-    Frame, layout::{Alignment, Constraint, Flex::Center, Layout}, macros::horizontal, style::{Color, Style, Stylize}, symbols, text::{Line, Span}, widgets::{Block, BorderType, Borders, Padding, Paragraph, Wrap}
+    Frame, layout::{Alignment, Constraint, Direction, Flex::Center, Layout}, macros::horizontal, style::{Color, Style, Stylize}, symbols, text::{Line, Span}, widgets::{Bar, BarChart, Block, BorderType, Borders, Chart, Dataset, Padding, Paragraph, Wrap}
 };
 
 const MUTED: Color = Color::Rgb(60, 70, 85);
@@ -20,6 +17,12 @@ fn panel(title: &str) -> Block<'static>{
     .title(Line::from(format!(" {title} ")).fg(ACCENT).bold())
     .bold()
 }       
+
+fn bl_panel() -> Block<'static>{
+    Block::default()
+    .border_style(MUTED) 
+    .bold()
+}   
 
 
 
@@ -74,6 +77,13 @@ pub fn draw(frame: &mut Frame, _app: &mut App){
     
     let usname = &_app.username;
 
+    let [cores, usage] = Layout::horizontal(
+        [Constraint::Fill(1), 
+        Constraint::Fill(1)
+        ]
+    )
+        .areas(cpu_graph);
+
     let user_info = Paragraph::new(format!(">_ {}@{}", usname.as_str(), _app.host_name)).block(
         panel("user")
     )
@@ -94,6 +104,7 @@ pub fn draw(frame: &mut Frame, _app: &mut App){
         _app.shell
     );
 
+
     let system_info = Paragraph::new(info_text)
     .block(
         panel("info").padding(Padding::horizontal(1))
@@ -102,13 +113,35 @@ pub fn draw(frame: &mut Frame, _app: &mut App){
 
     let cpu_us: String = _app.cpu_usage
     .iter()
+    .map(|n| format!("\n{}", n)).collect();
+
+    let cpu_dataset: Vec<Bar> = _app.cpu_usage
+    .iter()
     .enumerate()
-    .map(|(i, n)| format!("\ncore{} - {}",i+1, n)).collect();
+    .map(|(i, f)| 
+    Bar::with_label(
+    format!("Core {}", i + 1),
+    *f as u64
+    ).style(ACCENT)
+    )
+    .collect();
+    let cpu_chart = BarChart::new(cpu_dataset).direction(Direction::Horizontal).bar_gap(0);
 
     let cpu_usage = Paragraph::new(cpu_us)
-    .block(
-        panel("cpu graph")
-    ).style(ACCENT);
+    .block(bl_panel()
+    .padding(Padding { left: (0), right: (0), top: (2), bottom: (2) }))
+    .fg(ACCENT);
+
+    let cpu_cores: String = _app.cpu_usage
+    .iter()
+    .enumerate()
+    .map(|(i, _n)| format!("\nCore {}", i+1))
+    .collect();
+
+    let enum_cpus = Paragraph::new(cpu_cores)
+    .block(bl_panel()
+    .padding(Padding { left: (2), right: (2), top: (2), bottom: (2) }))
+    .fg(ACCENT);
 
     let ram_gb = _app.ram_used as f64 / (1024.0 * 1024.0 * 1024.0);
     let ram_max = _app.total_ram as f64 / (1024.0 * 1024.0 * 1024.0);
@@ -124,7 +157,10 @@ pub fn draw(frame: &mut Frame, _app: &mut App){
     (*frame).render_widget(title, header);  
     (*frame).render_widget(system_info, info);
     (*frame).render_widget(panel("system"), logo);
-    (*frame).render_widget(cpu_usage, cpu_graph);
+    // (*frame).render_widget(enum_cpus, cores);
+    // (*frame).render_widget(cpu_usage, usage);
+    (*frame).render_widget(cpu_chart, cpu_graph);
+    // (*frame).render_widget(panel("Cpu graph"), cpu_graph);
     (*frame).render_widget(panel("disks"), diskload);
     (*frame).render_widget(panel("temperature"), tempo);
     (*frame).render_widget(user_info, username);
