@@ -1,4 +1,3 @@
-
 use ratatui::{
     Frame, layout::{Alignment, Constraint, Direction, Flex::Center, Layout}, macros::horizontal, style::{Color, Style, Stylize}, symbols, text::{Line, Span}, widgets::{Bar, BarChart, Block, BorderType, Borders, Chart, Dataset, Padding, Paragraph, Wrap}
 };
@@ -111,31 +110,26 @@ pub fn draw(frame: &mut Frame, _app: &mut App){
     )
     .style(ACCENT);
 
-    let cpu_us: String = _app.cpu_usage
-    .iter()
-    .map(|n| format!("\n{}", n)).collect();
 
     let cpu_dataset: Vec<Bar> = _app.cpu_usage
     .iter()
-    .enumerate()
-    .map(|(i, f)| 
-    Bar::with_label(
-    format!("Core {}", i + 1),
-    *f as u64
-    ).style(ACCENT)
+    .map(|f|   
+    Bar::new(*f as u64)
     )
     .collect();
-    let cpu_chart = BarChart::new(cpu_dataset).direction(Direction::Horizontal).bar_gap(0);
 
-    let cpu_usage = Paragraph::new(cpu_us)
+
+    let cpu_chart = BarChart::new(cpu_dataset)
+    .direction(Direction::Horizontal)       
+    .bar_gap(0)
     .block(bl_panel()
-    .padding(Padding { left: (0), right: (0), top: (2), bottom: (2) }))
+    .padding(Padding { left: (0), right: (0), top: (3), bottom: (2) }))
     .fg(ACCENT);
 
     let cpu_cores: String = _app.cpu_usage
     .iter()
     .enumerate()
-    .map(|(i, _n)| format!("\nCore {}", i+1))
+    .map(|(i, _n)| format!("\nCore {:.2}", i+1))
     .collect();
 
     let enum_cpus = Paragraph::new(cpu_cores)
@@ -154,20 +148,32 @@ pub fn draw(frame: &mut Frame, _app: &mut App){
     .style(ACCENT)
     .alignment(Alignment::Center);
 
+    //system renders
     (*frame).render_widget(title, header);  
     (*frame).render_widget(system_info, info);
+    (*frame).render_widget(ram_info, mem);
     (*frame).render_widget(panel("system"), logo);
-    // (*frame).render_widget(enum_cpus, cores);
-    // (*frame).render_widget(cpu_usage, usage);
-    (*frame).render_widget(cpu_chart, cpu_graph);
-    // (*frame).render_widget(panel("Cpu graph"), cpu_graph);
-    (*frame).render_widget(panel("disks"), diskload);
-    (*frame).render_widget(panel("temperature"), tempo);
     (*frame).render_widget(user_info, username);
     (*frame).render_widget(panel("ascii_art"), ascii_art);
-    (*frame).render_widget(ram_info, mem);
+
+    //cpu renders
+    (*frame).render_widget(enum_cpus, cores);
+    (*frame).render_widget(cpu_chart, usage);
+    (*frame).render_widget(panel("Cpu graph"), cpu_graph);
+
+    //disk
+    (*frame).render_widget(panel("disks"), diskload);
+
+    //tempo
+    (*frame).render_widget(panel("temperature"), tempo);
+
+    //procceses
     (*frame).render_widget(panel("processes"), procceses);
+
+    //net info
     (*frame).render_widget(panel("net info"), ports);
+
+    //foot
     (*frame).render_widget(panel("keybinds")
     .title_bottom(Line::from("q - Quit").right_aligned().fg(ACCENT)),keybinds);
 
